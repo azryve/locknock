@@ -19,11 +19,11 @@ func TestIPTablesRulesRenderer(t *testing.T) {
 	iptables -N LOCKNOCK
 	iptables -F LOCKNOCK
 	iptables -A LOCKNOCK -p tcp -m state --state RELATED,ESTABLISHED -j ACCEPT
-	iptables -A LOCKNOCK -m recent --rcheck --seconds 33 --reap --name knock3 --rsource -j ACCEPT
-	iptables -A LOCKNOCK -p udp -m udp --dport 11111 -m recent --set --name knock0 --rsource -j DROP
-	iptables -A LOCKNOCK -p udp -m recent --rcheck --seconds 10 --reap --name knock0 --rsource -m udp --dport 22222 -m recent --set --name knock1 --rsource -j DROP
-	iptables -A LOCKNOCK -p udp -m recent --rcheck --seconds 10 --reap --name knock1 --rsource -m udp --dport 33333 -m recent --set --name knock2 --rsource -j DROP
-	iptables -A LOCKNOCK -p udp -m recent --rcheck --seconds 10 --reap --name knock2 --rsource -m udp --dport 44444 -m recent --set --name knock3 --rsource -j DROP
+	iptables -A LOCKNOCK -p tcp -m tcp --dport 222 -m recent --rcheck --seconds 33 --reap --name knock3 --rsource -j ACCEPT
+	iptables -A LOCKNOCK -p udp -m udp --dport 11111 -m recent --set --name knock0 --rsource -j RETURN
+	iptables -A LOCKNOCK -p udp -m recent --rcheck --seconds 10 --reap --name knock0 --rsource -m udp --dport 22222 -m recent --set --name knock1 --rsource -j RETURN
+	iptables -A LOCKNOCK -p udp -m recent --rcheck --seconds 10 --reap --name knock1 --rsource -m udp --dport 33333 -m recent --set --name knock2 --rsource -j RETURN
+	iptables -A LOCKNOCK -p udp -m recent --rcheck --seconds 10 --reap --name knock2 --rsource -m udp --dport 44444 -m recent --set --name knock3 --rsource -j RETURN
 	iptables -A LOCKNOCK -p tcp -m tcp --dport 222 -j DROP
 	`)
 	assert.Equal(t, expected, rendered)

@@ -29,12 +29,12 @@ func (m *IPTablesRulesRenderer) Render() string {
 	iptables -N LOCKNOCK
 	iptables -F LOCKNOCK
 	iptables -A LOCKNOCK -p tcp -m state --state RELATED,ESTABLISHED -j ACCEPT
-	iptables -A LOCKNOCK -m recent --rcheck --seconds {{.TargetReapTimeoutSecs}} --reap --name knock{{sum $length -1}} --rsource -j ACCEPT
+	iptables -A LOCKNOCK -p tcp -m tcp --dport {{.TargetPort}} -m recent --rcheck --seconds {{.TargetReapTimeoutSecs}} --reap --name knock{{sum $length -1}} --rsource -j ACCEPT
 	{{- range $index, $knockPort := .KnockPorts }}
 	{{- if eq $index 0 }}
-	iptables -A LOCKNOCK -p udp -m udp --dport {{$knockPort}} -m recent --set --name knock{{$index}} --rsource -j DROP
+	iptables -A LOCKNOCK -p udp -m udp --dport {{$knockPort}} -m recent --set --name knock{{$index}} --rsource -j RETURN
 	{{- else }}
-	iptables -A LOCKNOCK -p udp -m recent --rcheck --seconds {{$internalReapTimeoutSecs}} --reap --name knock{{sum $index -1}} --rsource -m udp --dport {{$knockPort}} -m recent --set --name knock{{$index}} --rsource -j DROP
+	iptables -A LOCKNOCK -p udp -m recent --rcheck --seconds {{$internalReapTimeoutSecs}} --reap --name knock{{sum $index -1}} --rsource -m udp --dport {{$knockPort}} -m recent --set --name knock{{$index}} --rsource -j RETURN
 	{{- end }}
 	{{- end }}
 	iptables -A LOCKNOCK -p tcp -m tcp --dport {{.TargetPort}} -j DROP
