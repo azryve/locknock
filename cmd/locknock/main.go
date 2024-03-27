@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"locknock/internal/locknock"
+	"github.com/azryve/locknock/internal/locknock"
 	"os"
 
 	"github.com/spf13/cobra"

@@ -1,4 +1,4 @@
-module locknock
+module github.com/azryve/locknock
 
 go 1.22.0
 
