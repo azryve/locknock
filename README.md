@@ -12,6 +12,12 @@ Please contact your [physician](https://en.wikipedia.org/wiki/Port_knocking) to 
 
 ## Basic usage
 
+### Download and install
+```
+curl https://raw.githubusercontent.com/azryve/locknock/main/download.py | python3
+sudo install -m755 ./locknock /usr/local/bin/
+```
+
 ### Server: generate and install iptables ruleset
 
 ```
