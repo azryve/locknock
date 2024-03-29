@@ -24,13 +24,13 @@ jobs:
       run: echo "##[set-output name=version;]$(echo ${GITHUB_REF#refs/tags/})"
       shell: bash
 
-    - name: Build binary cmd/locknock
+    - name: Build linux binary cmd/locknock
       run: |
-        CGO_ENABLED=0 GOOS=linux go build -o ./locknock ./cmd/locknock
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./locknock_linux_amd64 ./cmd/locknock
 
-    - name: Create Tarball of source
+    - name: Build macos binary cmd/locknock
       run: |
-        git archive --format tar.gz --output source-${{ steps.get_version.outputs.version }}.tar.gz HEAD
+        CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ./locknock_darwin_arm64 ./cmd/locknock
 
     - name: Create Release
       id: create_release
@@ -45,22 +45,22 @@ jobs:
         body: |
           Release ${{ steps.get_version.outputs.version }}
 
-    - name: Upload Binary to Release
+    - name: "Upload to Release: linux binary"
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./locknock
-        asset_name: locknock
+        asset_path: ./locknock_linux_amd64
+        asset_name: locknock_linux_amd64
         asset_content_type: application/octet-stream
 
-    - name: Upload Source Tarball to Release
+    - name: "Upload to Release: macos binary"
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./source-${{ steps.get_version.outputs.version }}.tar.gz
-        asset_name: source-${{ steps.get_version.outputs.version }}.tar.gz
-        asset_content_type: application/gzip
+        asset_path: ./locknock_darwin_arm64
+        asset_name: locknock_darwin_arm64
+        asset_content_type: application/octet-stream
