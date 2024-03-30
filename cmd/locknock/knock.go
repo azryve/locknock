@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -15,6 +16,7 @@ var (
 	knockPacketsNumber int
 	knockKey           string
 	knockPortProxy     int
+	knockInterval      time.Duration
 )
 
 func knockRun(cmd *cobra.Command, args []string) error {
@@ -34,8 +36,12 @@ func knockRun(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		defer sock.Close()
 		sock.Write([]byte(""))
+		// to force the packet out
+		// at least on qdisc
+		sock.Close()
+		// try to prevent reordering
+		time.Sleep(knockInterval)
 	}
 	if knockPortProxy != 0 {
 		knockProxy(hostname)
@@ -69,7 +75,8 @@ func knockCmd() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  knockRun,
 	}
-	cmd.Flags().IntVarP(&knockPacketsNumber, "num", "n", 100, "number of packets to knock with")
+	cmd.Flags().IntVarP(&knockPacketsNumber, "num", "n", 10, "number of packets to knock with")
 	cmd.Flags().IntVarP(&knockPortProxy, "port-proxy", "P", 0, "after knocking start proxying to this port")
+	cmd.Flags().DurationVar(&knockInterval, "interval", 5*time.Millisecond, "interval between knocks")
 	return cmd
 }

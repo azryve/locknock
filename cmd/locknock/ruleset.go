@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/azryve/locknock/internal/locknock"
 
 	"github.com/spf13/cobra"
@@ -32,7 +33,7 @@ func rulesetCmd() *cobra.Command {
 		Short: "generate port knocking ruleset",
 		RunE:  rulesetRun,
 	}
+	cmd.Flags().IntVarP(&rulesetPacketsNumber, "num", "n", 10, "number of packets to knock with")
 	cmd.Flags().IntVarP(&rulesetPort, "port", "P", 22, "Port number to lock (default is 22)")
-	cmd.Flags().IntVarP(&rulesetPacketsNumber, "num", "n", 100, "number of packets to knock with")
 	return cmd
 }
