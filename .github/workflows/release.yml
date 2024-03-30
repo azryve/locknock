@@ -25,12 +25,22 @@ jobs:
       shell: bash
 
     - name: Build linux binary cmd/locknock
+      env:
+        CGO_ENABLED: "0"
+        VERSION: ${{ steps.get_version.outputs.version }}
+        GOOS: linux
+        GOARCH: amd64
       run: |
-        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./locknock_linux_amd64 ./cmd/locknock
+        go build -ldflags="-X 'main.Version=$VERSION'"  -o ./locknock_linux_amd64 ./cmd/locknock
 
     - name: Build macos binary cmd/locknock
+      env:
+        CGO_ENABLED: "0"
+        VERSION: ${{ steps.get_version.outputs.version }}
+        GOOS: darwin
+        GOARCH: arm64
       run: |
-        CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ./locknock_darwin_arm64 ./cmd/locknock
+        go build -ldflags="-X 'main.Version=$VERSION'" -o ./locknock_darwin_arm64 ./cmd/locknock
 
     - name: Create Release
       id: create_release

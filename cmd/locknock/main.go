@@ -2,17 +2,30 @@ package main
 
 import (
 	"fmt"
-	"github.com/azryve/locknock/internal/locknock"
 	"os"
+
+	"github.com/azryve/locknock/internal/locknock"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 )
 
+var Version = "dev"
+
+// versionCmd represents the version command
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "print the version",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println(Version)
+	},
+}
+
 func main() {
 	var rootCmd = &cobra.Command{Use: "locknock"}
 	rootCmd.AddCommand(rulesetCmd())
 	rootCmd.AddCommand(knockCmd())
+	rootCmd.AddCommand(versionCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
