@@ -13,7 +13,7 @@ type KnockGenerator struct {
 }
 
 // Generate next random port in a sequence
-func (m *KnockGenerator) Port() uint32 {
+func (m *KnockGenerator) Payload() uint32 {
 	m.initRng()
 	for {
 		return m.rng.Uint32()
