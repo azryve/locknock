@@ -8,8 +8,8 @@ import (
 
 func TestIPTablesRulesRenderer(t *testing.T) {
 	params := IPTablesParams{
-		TargetPort:              222,
-		KnockPorts:              []int{11111, 22222, 33333, 44444},
+		HiddenPort:              222,
+		Knocks:                  []uint32{11111, 22222, 33333, 44444},
 		TargetReapTimeoutSecs:   33,
 		InternalReapTimeoutSecs: 10,
 	}

@@ -7,26 +7,20 @@ import (
 	"github.com/valyala/fastrand"
 )
 
-type PortGenerator struct {
+type KnockGenerator struct {
 	Key string
 	rng *fastrand.RNG
 }
 
 // Generate next random port in a sequence
-func (m *PortGenerator) Port() int {
+func (m *KnockGenerator) Port() uint32 {
 	m.initRng()
 	for {
-		port := int(m.rng.Uint32())
-		// only use client tcp ports
-		port = port % 65535
-		if port < 1024 {
-			continue
-		}
-		return port
+		return m.rng.Uint32()
 	}
 }
 
-func (m *PortGenerator) initRng() {
+func (m *KnockGenerator) initRng() {
 	if m.rng == nil {
 		m.rng = &fastrand.RNG{}
 		seed := stringToUint32Seed(m.Key)

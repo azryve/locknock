@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"encoding/binary"
+
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +28,7 @@ func knockRun(cmd *cobra.Command, args []string) error {
 	}
 	hostname := args[0]
 	params := knockParams(knockKey, knockPacketsNumber)
-	for _, port := range params.KnockPorts {
+	for _, port := range params.Knocks {
 		address := fmt.Sprintf("%s:%d", hostname, port)
 		udpaddr, err := net.ResolveUDPAddr("udp", address)
 		if err != nil {
@@ -36,7 +38,9 @@ func knockRun(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		sock.Write([]byte(""))
+		bytes := []byte{}
+		bytes = binary.BigEndian.AppendUint16(bytes, uint16(port))
+		sock.Write(bytes)
 		// to force the packet out
 		// at least on qdisc
 		sock.Close()
