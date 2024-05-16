@@ -1,7 +1,12 @@
 # Locknock
 
 Locknock is a cli utility to generate port knocking iptables ruleset and execute knocking against it.
-The port sequence is generated automatically based on a provided pre-shared password.
+The port knocking actually accomplished with udp payload using the same one target port.
+This way all packets can be sent without worrying about reordering. The matching is perfomed by u32 module.
+The payload sequence is generated automatically based on a provided pre-shared password.
+
+It is in no way is protected against the replay attacks or any eavesdropping.
+The intended use is only as a precaution against mass internet scans and proxy detection.
 
 ## Security preface
 The port knocking in its essence is a *security by obscurity* aka **NOT A SECURITY**.
@@ -37,8 +42,10 @@ nc -vz myserver.example.com 22
 
 Openssh client's ProxyCommand option allows to execute knocking before connecting to server automatically.
 
+1) put `LOCKNOCK_PASSWORD` in your profile file
+2) add following in the ~/.ssh/config:
+
 ```
-# cat ~/.ssh/config
 Host myserver.example.com
-	ProxyCommand locknock knock %h --port-proxy %p
+	ProxyCommand locknock knock %h -P %p
 ```

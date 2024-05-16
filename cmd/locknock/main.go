@@ -33,15 +33,16 @@ func main() {
 	}
 }
 
-func knockParams(key string, packetsNumber int) locknock.IPTablesParams {
-	portGen := locknock.PortGenerator{Key: key}
-	knockPorts := []int{}
+func knockParams(key string, packetsNumber int, knockPort int) locknock.IPTablesParams {
+	knockGen := locknock.KnockGenerator{Key: key}
+	knocks := []uint32{}
 	for i := 0; i < packetsNumber; i++ {
-		knockPorts = append(knockPorts, portGen.Port())
+		knocks = append(knocks, knockGen.Payload())
 	}
 	return locknock.IPTablesParams{
-		TargetPort:              rulesetPort,
-		KnockPorts:              knockPorts,
+		HiddenPort:              rulesetHiddenPort,
+		KnockPort:               knockPort,
+		Knocks:                  knocks,
 		TargetReapTimeoutSecs:   30,
 		InternalReapTimeoutSecs: 1,
 	}

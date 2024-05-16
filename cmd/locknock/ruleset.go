@@ -9,8 +9,9 @@ import (
 )
 
 var (
+	rulesetTargetPort    int
 	rulesetPacketsNumber int
-	rulesetPort          int
+	rulesetHiddenPort    int
 	rulesetKey           string
 )
 
@@ -19,7 +20,7 @@ func rulesetRun(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	params := knockParams(rulesetKey, rulesetPacketsNumber)
+	params := knockParams(rulesetKey, rulesetPacketsNumber, rulesetTargetPort)
 	iptRend := locknock.IPTablesRulesRenderer{
 		Params: params,
 	}
@@ -34,6 +35,7 @@ func rulesetCmd() *cobra.Command {
 		RunE:  rulesetRun,
 	}
 	cmd.Flags().IntVarP(&rulesetPacketsNumber, "num", "n", 10, "number of packets to knock with")
-	cmd.Flags().IntVarP(&rulesetPort, "port", "P", 22, "Port number to lock (default is 22)")
+	cmd.Flags().IntVarP(&rulesetHiddenPort, "port-hidden", "P", 22, "tcp port number to lock (default is 22)")
+	cmd.Flags().IntVarP(&rulesetTargetPort, "port-target", "T", 2222, "upd port to send knocks (default is 2222)")
 	return cmd
 }

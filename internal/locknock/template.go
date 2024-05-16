@@ -1,6 +1,7 @@
 package locknock
 
 import (
+	"fmt"
 	"html/template"
 	"strings"
 	"unicode"
@@ -12,6 +13,7 @@ func init() {
 	templateHelpers = &template.FuncMap{
 		"dedent": dedent,
 		"sum":    sum,
+		"hex":    hex,
 	}
 }
 
@@ -59,4 +61,8 @@ func dedent(text string) string {
 // sum is a custom function that sums to ints
 func sum(a, b int) int {
 	return a + b
+}
+
+func hex(x uint32) string {
+	return fmt.Sprintf("%x", x)
 }

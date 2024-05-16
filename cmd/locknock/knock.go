@@ -7,16 +7,17 @@ import (
 	"net"
 	"os"
 	"sync"
-	"time"
+
+	"encoding/binary"
 
 	"github.com/spf13/cobra"
 )
 
 var (
+	knockTargetPort    int
 	knockPacketsNumber int
 	knockKey           string
-	knockPortProxy     int
-	knockInterval      time.Duration
+	knockPortHidden    int
 )
 
 func knockRun(cmd *cobra.Command, args []string) error {
@@ -25,32 +26,30 @@ func knockRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	hostname := args[0]
-	params := knockParams(knockKey, knockPacketsNumber)
-	for _, port := range params.KnockPorts {
-		address := fmt.Sprintf("%s:%d", hostname, port)
-		udpaddr, err := net.ResolveUDPAddr("udp", address)
-		if err != nil {
-			return err
-		}
-		sock, err := net.DialUDP("udp", nil, udpaddr)
-		if err != nil {
-			return err
-		}
-		sock.Write([]byte(""))
-		// to force the packet out
-		// at least on qdisc
-		sock.Close()
-		// try to prevent reordering
-		time.Sleep(knockInterval)
+	params := knockParams(knockKey, knockPacketsNumber, knockTargetPort)
+	address := fmt.Sprintf("%s:%d", hostname, params.KnockPort)
+	udpaddr, err := net.ResolveUDPAddr("udp", address)
+	if err != nil {
+		return err
 	}
-	if knockPortProxy != 0 {
+	sock, err := net.DialUDP("udp", nil, udpaddr)
+	if err != nil {
+		return err
+	}
+	defer sock.Close()
+	for _, knock := range params.Knocks {
+		bytes := make([]byte, 0, 4)
+		bytes = binary.BigEndian.AppendUint32(bytes, knock)
+		sock.Write(bytes)
+	}
+	if knockPortHidden != 0 {
 		knockProxy(hostname)
 	}
 	return nil
 }
 
 func knockProxy(hostname string) {
-	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", hostname, knockPortProxy))
+	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", hostname, knockPortHidden))
 	if err != nil {
 		log.Fatalf("Failed to connect to server: %v", err)
 	}
@@ -76,7 +75,7 @@ func knockCmd() *cobra.Command {
 		RunE:  knockRun,
 	}
 	cmd.Flags().IntVarP(&knockPacketsNumber, "num", "n", 10, "number of packets to knock with")
-	cmd.Flags().IntVarP(&knockPortProxy, "port-proxy", "P", 0, "after knocking start proxying to this port")
-	cmd.Flags().DurationVar(&knockInterval, "interval", 5*time.Millisecond, "interval between knocks")
+	cmd.Flags().IntVarP(&knockPortHidden, "port-hidden", "P", 0, "after knocking start proxying to this hidden port")
+	cmd.Flags().IntVarP(&knockTargetPort, "port-target", "T", 2222, "upd port to send knocks (default is 2222)")
 	return cmd
 }
